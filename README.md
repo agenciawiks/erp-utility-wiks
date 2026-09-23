@@ -1,8 +1,8 @@
-# 👕 Camisetas Opressoras - Frontend Mockup Studio (Vite + React)
+# 🧰 ERP Utility WIKS (Vite + React)
 
-A interface do usuário (UI) para o **Gerador de Mockups** da Camisetas Opressoras. 
+Hub interno da Agência Wiks de ferramentas de apoio pros e-commerces: mockup de estampa, geração de prompt de IA, e cadastro de SKU + descrição ERP. Não é uma loja — é ferramenta de operação (ver nota `gerador-de-estampas` no wiks-brain).
 
-Online em: [gerador-de-estampas.vercel.app](https://gerador-de-estampas.vercel.app)
+Online em: [erp-utility-wiks.vercel.app](https://erp-utility-wiks.vercel.app)
 
 ## ⚡ Desenvolvimento
 

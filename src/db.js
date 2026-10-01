@@ -326,6 +326,28 @@ export const appDb = {
     return erpData;
   },
 
+  // Exporta o ERP salvo direto pro Wiks Brain (repo guilherme), via
+  // api/export-erp.js — não lança erro: se falhar, quem chamou decide
+  // como avisar o usuário, mas o ERP já foi salvo normalmente antes disso.
+  async exportErpParaVault(erpData) {
+    try {
+      const res = await fetch('/api/export-erp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(erpData),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error('Erro ao exportar ERP pro vault:', json);
+        return { success: false, error: json.error || `HTTP ${res.status}` };
+      }
+      return { success: true, filePath: json.filePath };
+    } catch (error) {
+      console.error('Erro ao exportar ERP pro vault:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
   async deleteErp(id) {
     if (isFirebaseConfigured) {
       try {

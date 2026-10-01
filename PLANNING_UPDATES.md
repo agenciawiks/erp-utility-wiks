@@ -2,6 +2,39 @@
 
 Este documento estabelece o plano para a implementação das próximas funcionalidades e melhorias de UI/UX no sistema.
 
+## 0. Exportação automática pro Wiks Brain (01/10/2026) ✅
+
+**Problema**: SKU/ERP gerado aqui no app ficava só no Firestore próprio —
+não sincronizava com o Tiny nem aparecia em lugar nenhum do vault Obsidian
+da agência (Wiks Brain), que é onde o Guilherme centraliza conhecimento.
+Virou fonte de verdade isolada, uma das 4 fontes fragmentadas de SKU/ERP
+da agência (as outras: Tiny ERP, a planilha do JB, e a skill `gerar-erp`
+do Claude Code).
+
+**Solução**: ao clicar "Salvar produto" (SKU + descrição ERP), o app agora
+também exporta pro vault automaticamente — `src/db.js` (`exportErpParaVault`)
+chama `api/export-erp.js`, uma função serverless que usa a API do GitHub
+pra:
+1. Criar um arquivo novo em `erp-geracao/produtos/<slug>-<data>.md` no
+   repositório `agenciawiks/guilherme` (mesma pasta/formato que a skill
+   `gerar-erp` do Claude Code já usa, pra não criar um segundo padrão).
+2. Inserir uma linha no índice
+   `wiks-brain/03-Resources/processos/produtos gerados via erp.md`
+   (via um comentário-âncora `<!-- NOVA-LINHA-AQUI -->` no arquivo, que
+   não pode ser apagado).
+
+Não bloqueia o salvamento normal: se a exportação falhar (token
+inválido/expirado, rede, etc.), o SKU/ERP já foi salvo no Firebase/
+LocalForage normalmente antes — só aparece um aviso de que não entrou no
+vault dessa vez.
+
+⚠️ **Pendência de configuração (manual, fora do alcance do Claude Code)**:
+pra isso funcionar em produção, precisa criar um **Personal Access Token
+do GitHub** (fine-grained, só no repo `agenciawiks/guilherme`, permissão
+"Contents: Read and write") e cadastrar como variável de ambiente
+`GITHUB_TOKEN` no projeto Vercel — **nunca** com prefixo `VITE_` (vazaria
+no bundle do navegador). Ver `.env.example`.
+
 ## 1. Gerenciamento de Arquivos ✅
 - **Botões de Limpeza Explosiva**: Implementado com dois botões distintos por contexto de aba:
   - **Limpar Todos os Mockups**: Remove todos os arquivos da base de "Mockups".

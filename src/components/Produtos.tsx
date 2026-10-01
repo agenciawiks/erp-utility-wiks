@@ -314,6 +314,7 @@ export default function Produtos() {
   // ── Salvar produto completo (SKU + ERP juntos) ────────────────────────────
   const salvarProduto = async () => {
     const feitos: string[] = [];
+    let exportResult: { success: boolean; error?: string } | null = null;
     try {
       if (skuValido) {
         await appDb.saveSku(montarSku());
@@ -322,20 +323,29 @@ export default function Produtos() {
       if (erpPronto) {
         const id = erpId || novoId();
         if (!erpId) setErpId(id);
-        await appDb.saveErp(montarErp(id));
+        const erpSalvo = montarErp(id);
+        await appDb.saveErp(erpSalvo);
         feitos.push("descrição ERP");
+        // Exporta pro Wiks Brain — não bloqueia o fluxo se falhar, o
+        // produto já foi salvo normalmente nas linhas acima.
+        exportResult = await appDb.exportErpParaVault(erpSalvo);
       }
       if (!feitos.length) {
         setStatusMsg("Gere ao menos o SKU ou a descrição ERP antes de salvar.");
         return;
       }
       await recarregar();
-      setStatusMsg(
+      const baseMsg =
         feitos.length === 2
           ? `Produto salvo: ${skuGerado} + descrição ERP, já vinculados.`
-          : `Salvo: ${feitos[0]}.`
-      );
-      setTimeout(() => setStatusMsg(""), 4000);
+          : `Salvo: ${feitos[0]}.`;
+      const exportMsg = exportResult
+        ? exportResult.success
+          ? " Exportado pro Wiks Brain."
+          : ` ⚠ Falha ao exportar pro Wiks Brain (${exportResult.error}) — produto salvo normalmente, só não entrou no vault.`
+        : "";
+      setStatusMsg(baseMsg + exportMsg);
+      setTimeout(() => setStatusMsg(""), 6000);
     } catch (e) {
       console.error("Erro ao salvar produto:", e);
       setStatusMsg("Erro ao salvar — veja o console.");
